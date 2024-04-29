@@ -719,7 +719,7 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN} 
-      - CONNECTOR_ID=${CONNECTOR_CCC_ID} 
+      - CONNECTOR_ID=${CONNECTOR_CYBERMONITOR_ID} 
       - CONNECTOR_TYPE=EXTERNAL_IMPORT
       - "CONNECTOR_NAME=APT & Cybercriminals Campaign Collection"
       - CONNECTOR_SCOPE=report
