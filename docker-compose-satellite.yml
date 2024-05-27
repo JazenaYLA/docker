@@ -1,4 +1,5 @@
-# using 6.0.10 from 2024-April-23
+# satellite version
+# using 6.0.10 from 2024-April-25
 # using 5.11.12 from 2023-October-30
 version: '3'
 services:
@@ -8,7 +9,7 @@ services:
     volumes:
       - redisdata:/data
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.2
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
@@ -37,13 +38,17 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
     command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
     restart: always
   rabbitmq:
-    image: rabbitmq:3.13-management
+    image: rabbitmq:3.12-management
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-      - RABBITMQ_NODENAME=rabbit01@localhost      
     volumes:
       - amqpdata:/var/lib/rabbitmq
     restart: always
@@ -170,52 +175,6 @@ services:
     restart: always
     depends_on:
       - opencti
-  connector-alienvault:
-    image: opencti/connector-alienvault:6.0.10
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_ALIENVAULT_ID}
-      - CONNECTOR_TYPE=EXTERNAL_IMPORT
-      - CONNECTOR_NAME=AlienVault
-      - CONNECTOR_SCOPE=alienvault
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_UPDATE_EXISTING_DATA=false
-      - CONNECTOR_LOG_LEVEL=info
-      - ALIENVAULT_BASE_URL=https://otx.alienvault.com
-      - ALIENVAULT_API_KEY=${ALIENVAULT_API_KEY}
-      - ALIENVAULT_TLP=White
-      - ALIENVAULT_CREATE_OBSERVABLES=true
-      - ALIENVAULT_CREATE_INDICATORS=true
-      - ALIENVAULT_PULSE_START_TIMESTAMP=2020-05-01T00:00:00                  # BEWARE! Could be a lot of pulses!
-      - ALIENVAULT_REPORT_TYPE=threat-report
-      - ALIENVAULT_REPORT_STATUS=New
-      - ALIENVAULT_GUESS_MALWARE=false                                        # Use tags to guess malware.
-      - ALIENVAULT_GUESS_CVE=false                                            # Use tags to guess CVE.
-      - ALIENVAULT_EXCLUDED_PULSE_INDICATOR_TYPES=FileHash-MD5,FileHash-SHA1  # Excluded Pulse indicator types.
-      - ALIENVAULT_ENABLE_RELATIONSHIPS=true                                  # Enable/Disable relationship creation between SDOs.
-      - ALIENVAULT_ENABLE_ATTACK_PATTERNS_INDICATES=true                      # Enable/Disable "indicates" relationships between indicators and attack patterns
-      - ALIENVAULT_INTERVAL_SEC=1800
-    restart: always
-    depends_on:
-      - opencti    
-  connector-abuseipdb:
-    image: opencti/connector-abuseipdb:6.0.10
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_ABUSEIPDB_ID}
-      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
-      - CONNECTOR_NAME=AbuseIPDB
-      - CONNECTOR_SCOPE=IPv4-Addr
-      - CONNECTOR_AUTO=true
-      - CONNECTOR_CONFIDENCE_LEVEL=15 # From 0 (Unknown) to 100 (Fully trusted)
-      - CONNECTOR_LOG_LEVEL=info
-      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
-      - ABUSEIPDB_MAX_TLP=TLP:AMBER
-    restart: always
-    depends_on:
-      - opencti    
   abuseipdb-ipblacklist:
     image: opencti/connector-abuseipdb-ipblacklist:6.0.10
     environment:
@@ -792,31 +751,6 @@ services:
 #    restart: always
 #    depends_on:
 #      - opencti
-  connector-intel471:
-    image: opencti/connector-intel471:6.0.10
-    environment:
-      - OPENCTI_URL=http://opencti:8080
-      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN} 
-      - CONNECTOR_ID=${CONNECTOR_INTEL471_ID} 
-      - CONNECTOR_TYPE=EXTERNAL_IMPORT
-      - CONNECTOR_NAME=Intel471
-      - CONNECTOR_SCOPE=malware,vulnerability,indicator
-      - CONNECTOR_CONFIDENCE_LEVEL=70
-      - CONNECTOR_UPDATE_EXISTING_DATA=false
-      - CONNECTOR_LOG_LEVEL=error
-      - INTEL471_API_USERNAME=${INTEL471_API_USERNAME} # 
-      - INTEL471_API_KEY=${INTEL471_API_KEY} # 
-      - INTEL471_INTERVAL_INDICATORS=60
-      - INTEL471_INITIAL_HISTORY_INDICATORS=0
-      - INTEL471_INTERVAL_YARA=60
-      - INTEL471_INITIAL_HISTORY_YARA=0
-      - INTEL471_INTERVAL_CVES=120
-      - INTEL471_INITIAL_HISTORY_CVES=0
-      - INTEL471_INTERVAL_IOCS=120
-      - INTEL471_INITIAL_HISTORY_IOCS=0
-    restart: always
-    depends_on:
-      - opencti
   connector-malpedia:
     image: opencti/connector-malpedia:6.0.10
     environment:
@@ -893,9 +827,9 @@ services:
 #    restart: always
 #    depends_on:
 #      - opencti
-
 volumes:
   esdata:
   s3data:
   redisdata:
   amqpdata:
+  
