@@ -255,7 +255,7 @@ services:
     restart: always
     depends_on:
       - opencti
-connector-misp-jmz:
+connector-misp:
   image: opencti/connector-misp:6.0.10
   environment:
     - OPENCTI_URL=http://opencti:8080
