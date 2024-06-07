@@ -256,7 +256,7 @@ services:
     depends_on:
       - opencti
 connector-misp-jmz:
-  image: opencti/connector-misp:5.10.3
+  image: opencti/connector-misp:6.0.10
   environment:
     - OPENCTI_URL=http://opencti:8080
     - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
