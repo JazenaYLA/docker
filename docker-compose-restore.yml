@@ -263,7 +263,7 @@ services:
   #  environment:
   #    - OPENCTI_URL=http://opencti:8080
   #    - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-  #    - CONNECTOR_ID=${CONNECTOR_MISP__JMZ_ID}
+  #    - CONNECTOR_ID=${CONNECTOR_MISP_JMZ_ID}
   #    - CONNECTOR_TYPE=EXTERNAL_IMPORT
   #    - CONNECTOR_NAME=MISP_JMZ
   #    - CONNECTOR_SCOPE=misp
