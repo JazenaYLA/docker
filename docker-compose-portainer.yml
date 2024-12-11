@@ -1,14 +1,30 @@
 services:
+
+# <------ replace Redis with Valkey
+#  redis:
+#    image: redis:7.4.1
+#    restart: always
+#    volumes:
+#      - redisdata:/data
+#    healthcheck:
+#      test: ["CMD", "redis-cli", "ping"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 3
+# ------> replace Redis with Valkey
+
   redis:
-    image: redis:7.4.1
-    restart: always
-    volumes:
-      - redisdata:/data
+    image: valkey/valkey:7.2
+    command: "--requirepass '${REDIS_PASSWORD:-redispassword}'"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
+      test: "valkey-cli -a '${REDIS_PASSWORD:-redispassword}' -p ${REDIS_PORT:-6379} ping | grep -q PONG || exit 1"
+      interval: 2s
+      timeout: 1s
       retries: 3
+      start_period: 5s
+      start_interval: 5s
+
+# <------ replace ElasticSearch with OpenSearch
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
     volumes:
@@ -36,6 +52,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 50
+# ------> replace ElasticSearch with OpenSearch
+
+
+
+
   minio:
     image: minio/minio:RELEASE.2024-05-28T17-19-04Z # Use "minio/minio:RELEASE.2024-05-28T17-19-04Z-cpuv1" to troubleshoot compatibility issues with CPU
     volumes:
@@ -770,7 +791,7 @@ services:
     depends_on:
       opencti:
         condition: service_healthy
-  # ------> This fixes the OpenCTI graphs
+# ------> This fixes the OpenCTI graphs
 
   connector-cisa-known-exploited-vulnerabilities:
     image: opencti/connector-cisa-known-exploited-vulnerabilities:6.4.3
