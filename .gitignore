@@ -1,2 +1,5 @@
 *.iml
 .env
+docker-compose-restore.yml
+docker-compose-satellite.yml
+docker-compose-portainer.yaml
